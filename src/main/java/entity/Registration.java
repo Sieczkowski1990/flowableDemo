@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Setter
 @Getter
-public class Article {
+public class Registration {
 
     private UUID articleProcessID;
 
@@ -27,7 +27,7 @@ public class Article {
 
     private String status;
 
-    public Article (Task task){
+    public Registration(Task task){
 
         Map<String, Object> articleVariables = task.getProcessVariables();
         this.articleProcessID = UUID.fromString(task.getProcessInstanceId());
