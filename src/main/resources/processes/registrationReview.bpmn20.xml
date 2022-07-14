@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
+  <process id="registrationReview" name="registrationReview" isExecutable="true">
+    <startEvent id="sid-32a0ae86-3759-4811-9cb3-725b54fbcf0f" name="startFlow"/>
+    <serviceTask id="registrationRecieved" flowable:exclusive="true" name="Case received message" flowable:class="com.example.flowabledemo.entity.CaseReceived"/>
+    <sequenceFlow id="sid-df167917-4285-4ff1-b25b-6ea09df78975" sourceRef="sid-32a0ae86-3759-4811-9cb3-725b54fbcf0f" targetRef="registrationRecieved"/>
+    <userTask id="reviewRegistration" name="Review the sumbitted registration" flowable:candidateGroups="editors"/>
+    <sequenceFlow id="sid-972b0839-1b1f-415e-be73-cacdb4ff6bc3" sourceRef="registrationRecieved" targetRef="reviewRegistration"/>
+    <exclusiveGateway id="decision" name="decisionEditorMakes"/>
+    <sequenceFlow id="sid-95d327d2-b6ee-4876-b8f0-27db6e3395c2" sourceRef="reviewRegistration" targetRef="decision"/>
+    <serviceTask id="registrationApproved" flowable:exclusive="true" name="Publish Registration" flowable:class="com.example.flowabledemo.serviceTasks.PublishRegistration"/>
+    <sequenceFlow id="sid-fd9b3e12-96f1-4d4d-a75a-2cd4e6a08579" sourceRef="decision" targetRef="registrationApproved">
+      <conditionExpression xsi:type="tFormalExpression"/>
+    </sequenceFlow>
+    <serviceTask id="registrationRejected" flowable:exclusive="true" name="Send rejection email" flowable:class="com.example.flowabledemo.serviceTasks.SendRejectionEmail"/>
+    <sequenceFlow id="sid-10bce127-5fa2-4fd5-8c89-f1dc414abc43" sourceRef="decision" targetRef="registrationRejected">
+      <conditionExpression xsi:type="tFormalExpression"/>
+    </sequenceFlow>
+    <endEvent id="end" name="End of flow"/>
+    <sequenceFlow id="sid-524af274-0303-4dce-b92d-9c9e1f281769" sourceRef="registrationRejected" targetRef="end"/>
+    <sequenceFlow id="sid-7f8d9149-0859-4472-88b9-f51e1e420fcc" sourceRef="registrationApproved" targetRef="end"/>
+    <serviceTask flowable:type="mail" id="greetingsEmail" name="Greetings Email">
+      <extensionElements>
+        <flowable:field name="to">
+          <flowable:expression>${email}</flowable:expression>
+        </flowable:field>
+        <flowable:field name="subject">
+          <flowable:string><![CDATA[Rejection]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="html">
+          <flowable:string><![CDATA[<a href="http://localhost:8080/registration">Rejection reason</a>
+<input type="textarea">To nie takie proste !</input>]]></flowable:string>
+        </flowable:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-3af9b3e6-c0d0-4010-9b1a-131e1e2b529f" sourceRef="registrationRecieved" targetRef="greetingsEmail"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_registrationReview">
+    <bpmndi:BPMNPlane bpmnElement="registrationReview" id="BPMNPlane_registrationReview">
+      <bpmndi:BPMNShape id="shape-00eca605-b679-4042-bf26-4d9070168fb0" bpmnElement="sid-32a0ae86-3759-4811-9cb3-725b54fbcf0f">
+        <omgdc:Bounds x="-60.0" y="0.0" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape-601a354c-81e3-459a-9870-49f052042a68" bpmnElement="registrationRecieved">
+        <omgdc:Bounds x="-5.0" y="-5.0" width="40.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-7ac6bdfd-4ed0-4e58-bb63-fb119acafc38" bpmnElement="sid-df167917-4285-4ff1-b25b-6ea09df78975">
+        <omgdi:waypoint x="-30.0" y="15.0"/>
+        <omgdi:waypoint x="-5.0" y="15.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-3b1aad9c-c24c-4a0c-b55c-3884f8e63fc1" bpmnElement="reviewRegistration">
+        <omgdc:Bounds x="70.0" y="-5.0" width="45.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-b597f6d4-74dc-4eed-8bff-ac2c38dbd534" bpmnElement="sid-972b0839-1b1f-415e-be73-cacdb4ff6bc3">
+        <omgdi:waypoint x="35.0" y="15.0"/>
+        <omgdi:waypoint x="70.0" y="15.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-e01abc07-175b-46bf-bfee-e05e3198c97d" bpmnElement="decision">
+        <omgdc:Bounds x="140.0" y="-5.0" width="40.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-ddbb9a4e-a125-4bc3-8f4f-134c662bbd2c" bpmnElement="sid-95d327d2-b6ee-4876-b8f0-27db6e3395c2">
+        <omgdi:waypoint x="115.0" y="15.0"/>
+        <omgdi:waypoint x="140.0" y="15.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-60b93b6e-fc65-4b50-9b96-b262d2349956" bpmnElement="registrationApproved">
+        <omgdc:Bounds x="180.0" y="-55.0" width="40.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-c4f07a8c-84a7-45f9-b240-b721e9e681c8" bpmnElement="sid-fd9b3e12-96f1-4d4d-a75a-2cd4e6a08579">
+        <omgdi:waypoint x="160.0" y="-5.0"/>
+        <omgdi:waypoint x="180.0" y="-32.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-81c8e167-cb91-48bf-bf0b-59ac0908d27d" bpmnElement="registrationRejected">
+        <omgdc:Bounds x="182.5" y="55.0" width="45.0" height="35.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-a922031a-583e-4154-8db6-81882430878c" bpmnElement="sid-10bce127-5fa2-4fd5-8c89-f1dc414abc43">
+        <omgdi:waypoint x="160.0" y="35.0"/>
+        <omgdi:waypoint x="182.5" y="63.75"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-9d5d72ef-c4d0-4947-9542-45b0ab444713" bpmnElement="end">
+        <omgdc:Bounds x="250.0" y="5.0" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-0860cdf9-c1c9-4ab5-a68c-2a0c2768dfb9" bpmnElement="sid-524af274-0303-4dce-b92d-9c9e1f281769">
+        <omgdi:waypoint x="227.5" y="63.75"/>
+        <omgdi:waypoint x="257.5" y="35.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-eb86159b-be53-46be-b8de-57d68854c042" bpmnElement="sid-7f8d9149-0859-4472-88b9-f51e1e420fcc">
+        <omgdi:waypoint x="220.0" y="-32.5"/>
+        <omgdi:waypoint x="257.5" y="5.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-3bcc851f-c3d4-4b01-9667-4b5b2ef61a3a" bpmnElement="greetingsEmail">
+        <omgdc:Bounds x="-12.5" y="77.5" width="55.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape-9b3cffa4-6754-43d9-b4bd-58f67f2887cc" bpmnElement="emailTask">
+        <omgdc:Bounds x="5.0" y="80.0" width="45.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-c3cd477f-d8f8-49f8-96bf-5319907a4b57" bpmnElement="sid-0429b9af-0fb6-4068-bdb5-ec3afe052185">
+        <omgdi:waypoint x="25.0" y="35.0"/>
+        <omgdi:waypoint x="27.5" y="80.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-e83b57ab-a36e-4c34-bbb4-6d9364ff000e" bpmnElement="sid-707d5f5b-dff0-4f90-a50a-10a29081a7ec">
+        <omgdi:waypoint x="50.0" y="110.0"/>
+        <omgdi:waypoint x="70.0" y="137.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-5b4951e5-ef56-415a-a927-a4d1ea0545f4" bpmnElement="sid-3af9b3e6-c0d0-4010-9b1a-131e1e2b529f">
+        <omgdi:waypoint x="15.0" y="35.0"/>
+        <omgdi:waypoint x="15.0" y="77.5"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
