@@ -1,9 +1,9 @@
-package controller;
+package com.example.flowabledemo.controller;
 
-import entity.Registration;
+import com.example.flowabledemo.entity.Registration;
+import com.example.flowabledemo.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import service.RegistrationService;
 
 import java.util.List;
 
@@ -19,13 +19,13 @@ public class RegistrationController {
     }
 
     @GetMapping("/tasks")
-    public List<Registration> fetchTasks(@RequestBody String asigne) {
-        return registrationService.fetchTasksForAsigne(asigne);
+    public List<Registration> fetchTasks(@RequestParam String assignee) {
+        return registrationService.fetchTasksForAsigne(assignee);
     }
 
     @PostMapping("/decision")
-    public void decide (@RequestParam String articleProcessId, String decision) {
-        registrationService.decisionMaking(articleProcessId, decision);
+    public void decide (@RequestParam String registrationProcessId, String decision) {
+        registrationService.decisionMaking(registrationProcessId, decision);
     }
 
     @GetMapping("/newtasks")

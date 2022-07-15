@@ -1,6 +1,7 @@
-package service;
+package com.example.flowabledemo.service;
 
-import entity.Registration;
+import com.example.flowabledemo.entity.Registration;
+import com.example.flowabledemo.entity.Registration;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -28,9 +29,12 @@ public class RegistrationService {
         variables.put("author", registration.getAuthor());
         variables.put("tittle", registration.getTitle());
         variables.put("articleBody", registration.getArticleBody());
+        variables.put("email", registration.getEmail());
         variables.put("status", "new");
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("articleReview", variables);
-        registration.setArticleProcessID(UUID.fromString(processInstance.getId()));
+
+        //Podaje proces z nazwą id który ma wystartować w flowable musi taka sama jak nazwa stworzonego pliku
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("registrationReview", variables);
+        registration.setRegistrationProcessId(UUID.fromString(processInstance.getId()));
 
         return registration;
     }
@@ -46,14 +50,15 @@ public class RegistrationService {
                 task.getProcessInstanceId())),
                 UUID.fromString(task.getId()),
                 (String) variables.get("author"), (String) variables.get("title"),
-                (String) variables.get("articleBody"), (String) variables.get("status"));
+                (String) variables.get("articleBody"), (String) variables.get("status"),
+                (String) variables.get("email"));
         })
                 .collect(Collectors.toList());
     }
 
-    public void decisionMaking(String articleProcessId, String decision) {
+    public void decisionMaking(String registrationProcessId, String decision) {
         Task task = taskService.createTaskQuery()
-                .processInstanceId(articleProcessId)
+                .processInstanceId(registrationProcessId)
                 .includeProcessVariables()
                 .singleResult();
         String taskId = task.getId();
